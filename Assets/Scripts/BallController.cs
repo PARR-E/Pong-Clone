@@ -12,8 +12,8 @@ public class BallController : MonoBehaviour
     public Rigidbody2D rb;
     public GameManager gameManager;
     public float ballSpeed = 10f;          //Making the variable public lets you edit it in Unity's editor.
-    public float maxInitialAngle = 1.57f;   //
-    private float startX = 0f;
+    public float maxInitialAngle = 3.0f;   //
+    //private float startX = 0f;
     private float startY = 4f;
 
 
@@ -21,7 +21,7 @@ public class BallController : MonoBehaviour
     void Start()
     {
         ResetBall();
-        Invoke("Serve", 2);     //Call Serve method after 4 seconds.
+        //Invoke("Serve", 2);     //Call Serve method after 4 seconds.
 
 
     }
@@ -33,7 +33,7 @@ public class BallController : MonoBehaviour
 
     }
 
-    void Serve() {
+    public void Serve() {
         //Find the Rigidbody component:
         //rb = GetComponent<Rigidbody2D>();     //Can be done in inspector, so this isn't needed no more.
 
@@ -55,25 +55,14 @@ public class BallController : MonoBehaviour
     //Scoring:
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //Debug statements:
-        /*
-        if(collision.tag == "LeftZone")
-        {
-            Debug.Log("Left scored!");
-        }
-
-        if (collision.tag == "RightZone")
-        {
-            Debug.Log("Right scored!");
-        }
-        //*/
 
         if(collision != null){
             gameManager.SetScores(collision.tag);
         }
-
-        ResetBall();
-        Invoke("Serve", 1);     //Give the player some reaction time.
+        if(!gameManager.CheckWin()){
+            ResetBall();
+            Invoke("Serve", 1);     //Give the player some reaction time.
+        }
     }
 
     //Resetting ball position:
@@ -83,5 +72,17 @@ public class BallController : MonoBehaviour
         direction.y = (Random.Range(-startY, startY));
         rb.transform.position = direction;
         rb.linearVelocity = Vector2.zero;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision){
+        
+        float spdGain = 1.1f;
+
+        //collision.colider.GetComponent(PaddleController);
+        PaddleController paddle = collision.collider.GetComponent<PaddleController>();
+
+        //if(paddle != null){
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x * spdGain, rb.linearVelocity.y * spdGain); 
+        //}
     }
 }

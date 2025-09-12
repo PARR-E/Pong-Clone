@@ -442,6 +442,8 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/6000.0.39f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll"
 "Assets/Scripts/BallController.cs"
 "Assets/Scripts/GameManager.cs"
+"Assets/Scripts/GameUIController.cs"
+"Assets/Scripts/PaddleController.cs"
 "Assets/Scripts/ScoreTextController.cs"
 "Assets/scr_wall.cs"
 "Assets/TextMesh Pro/Examples & Extras/Scripts/Benchmark01.cs"
