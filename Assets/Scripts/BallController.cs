@@ -1,5 +1,4 @@
 //Jared Crow
-//ASK Dr. ZHENG ABOUT GETTING VS TO RECOGNIZE UNITY
 
 //using System;                     <- Don't use this one. If conflicts w/ Unity's imports.
 //using System.Diagnostics;         <- Same with this.
@@ -9,34 +8,37 @@ using UnityEngine.InputSystem;
 public class BallController : MonoBehaviour
 {
     //Initializations:
-    public Rigidbody2D rb;
-    public GameManager gameManager;
-    public float ballSpeed = 10f;          //Making the variable public lets you edit it in Unity's editor.
-    public float maxInitialAngle = 3.0f;   //
-    //private float startX = 0f;
-    private float startY = 4f;
+    public Rigidbody2D rb;                  //Used for collisions.
+    public float ballSpeed = 8f;           //Making the variable public lets you edit it in Unity's editor.
+    public float maxInitialAngle = 3.0f;    //Max angle in radians the ball can be lanched at.
+    private float startY = 4f;              //Starting height of the ball.
 
+    //Subscriptions:
+    private void OnEnable(){
+        GameManager.Instance.OnScoreChanged += Reset;        //Observer.
+        GameManager.Instance.OnGameStart += Serve;    //Replaces ball.Serve(); from GameUIController.
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         ResetBall();
-        //Invoke("Serve", 2);     //Call Serve method after 4 seconds.
-
-
     }
 
-    // Update is called once per frame:
-    void Update()
-    {
-    
+    //Making sure ball doesn't get too far out of bounds:
+    void Update(){
+        if(rb.position.y > 10 || rb.position.y < -10){
+            ResetBall();
+            Invoke("Serve", 1);
+        }
+    }
 
+    //Calls the ResetBall() method. Needed because ResetBall() has different parameters than OnScoreChanged.
+    public void Reset(int unused1, int unused2){    //OnScoreChanged requires 2 parameters, regardless of if they are used or not.
+        ResetBall();
     }
 
     public void Serve() {
-        //Find the Rigidbody component:
-        //rb = GetComponent<Rigidbody2D>();     //Can be done in inspector, so this isn't needed no more.
-
         //Generate random (x, y) vector:
         Vector2 direction = Vector2.left;
         if (Random.value > 0.5) { 
@@ -44,12 +46,8 @@ public class BallController : MonoBehaviour
         }
         direction.y = Random.Range(-maxInitialAngle, maxInitialAngle);
 
-        //direction.x = Random.Range(maxInitialAngle, maxInitialAngle);
-        //Vector2 direction = new Vector2(x, y);
-        rb.linearVelocity = direction * ballSpeed;          //Final velocity is a random speed horizontally and vertically.
-
-
-        //rigidboyd.linerVelocity(x, y)
+        //Final velocity is a random speed horizontally and vertically:
+        rb.linearVelocity = direction * ballSpeed;   
     }
 
     //Scoring:
@@ -57,9 +55,9 @@ public class BallController : MonoBehaviour
     {
 
         if(collision != null){
-            gameManager.SetScores(collision.tag);
+            GameManager.Instance.SetScores(collision.tag);      //Subscriber version of: gameManager.SetScores(collision.tag);
         }
-        if(!gameManager.CheckWin()){
+        if(!GameManager.Instance.CheckWin()){                   //Subscriber version of: !gameManager.CheckWin()
             ResetBall();
             Invoke("Serve", 1);     //Give the player some reaction time.
         }
@@ -74,6 +72,7 @@ public class BallController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
     }
 
+    //When ball collides with paddles, or a wall:
     private void OnCollisionEnter2D(Collision2D collision){
         
         float spdGain = 1.1f;
@@ -81,8 +80,13 @@ public class BallController : MonoBehaviour
         //collision.colider.GetComponent(PaddleController);
         PaddleController paddle = collision.collider.GetComponent<PaddleController>();
 
-        //if(paddle != null){
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * spdGain, rb.linearVelocity.y * spdGain); 
-        //}
+    }
+
+    //Unsubscribe to avoid leaks:
+    private void OnDisable()
+    {
+        GameManager.Instance.OnScoreChanged -= Reset;
+        GameManager.Instance.OnGameStart -= Serve;   
     }
 }

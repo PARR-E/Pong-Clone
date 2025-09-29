@@ -444,7 +444,6 @@
 "Assets/Scripts/GameManager.cs"
 "Assets/Scripts/GameUIController.cs"
 "Assets/Scripts/PaddleController.cs"
-"Assets/Scripts/ScoreTextController.cs"
 "Assets/scr_wall.cs"
 "Assets/TextMesh Pro/Examples & Extras/Scripts/Benchmark01.cs"
 "Assets/TextMesh Pro/Examples & Extras/Scripts/Benchmark01_UGUI.cs"
